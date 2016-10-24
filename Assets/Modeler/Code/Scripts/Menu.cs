@@ -58,38 +58,41 @@ namespace Modeler
 			/**
 			 *	Mesh Information
 			 */
-			GUILayout.BeginVertical("Group", GUILayout.MaxWidth(300f));
+			if( Selection.gameObjects.Count > 0 )
+			{
+				GUILayout.BeginVertical("Group", GUILayout.MaxWidth(300f));
 
-				GUILayout.Label("Mesh Information", "Header");
+					GUILayout.Label("Mesh Information", "Header");
 
-				scrollMesh = GUILayout.BeginScrollView(scrollMesh);
+					scrollMesh = GUILayout.BeginScrollView(scrollMesh);
 
-				InfoExpando expando;
+					InfoExpando expando;
 
-				foreach(GameObject go in Selection.gameObjects)
-				{
-					if( !expandoDictionary.TryGetValue(go, out expando) )
+					foreach(GameObject go in Selection.gameObjects)
 					{
-						expando = new InfoExpando();
-						expandoDictionary.Add(go, expando);
+						if( !expandoDictionary.TryGetValue(go, out expando) )
+						{
+							expando = new InfoExpando();
+							expandoDictionary.Add(go, expando);
+						}
+
+						if( GUILayout.Button(go.name))
+							expando.isVisible = !expando.isVisible;
+
+						if(expando.isVisible)
+						{
+							GUILayout.BeginVertical("Group");
+								DrawMeshData(go, expando);
+							GUILayout.EndVertical();
+						}
 					}
 
-					if( GUILayout.Button(go.name))
-						expando.isVisible = !expando.isVisible;
+					GUILayout.EndScrollView();
 
-					if(expando.isVisible)
-					{
-						GUILayout.BeginVertical("Group");
-							DrawMeshData(go, expando);
-						GUILayout.EndVertical();
-					}
-				}
+				GUILayout.EndVertical();
 
-				GUILayout.EndScrollView();
-
-			GUILayout.EndVertical();
-
-			usedRects.Add(GUILayoutUtility.GetLastRect());
+				usedRects.Add(GUILayoutUtility.GetLastRect());
+			}
 		}
 
 		private void DrawMeshData(GameObject go, InfoExpando expando)
@@ -123,12 +126,12 @@ namespace Modeler
 
 		private string DrawVec2(Vector2 v)
 		{
-			return string.Format("{0,5:.2f}, {1,5:.2f}", v.x, v.y);
+			return string.Format("{0,5:f2}, {1,5:f2}", v.x, v.y);
 		}
 
 		private string DrawVec3(Vector3 v)
 		{
-			return string.Format("{0,5:.2f}, {1,5:.2f}, {2,5:.2f}", v.x, v.y, v.z);
+			return string.Format("{0,5:f2}, {1,5:f2}, {2,5:f2}", v.x, v.y, v.z);
 		}
 
 		private void DrawEnumerable<T>(IEnumerable<T> array, System.Func<T, string> stringify)
