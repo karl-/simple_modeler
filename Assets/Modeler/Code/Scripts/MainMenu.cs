@@ -1,30 +1,30 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class MainMenu : MonoBehaviour
+namespace Modeler
 {
-	public GUISkin skin;
-
-	void Awake()
+	public class MainMenu : MonoBehaviour
 	{
-		if(skin == null)
-			Debug.LogError("GUISkin is null!");
-	}
+		public GUISkin skin;
 
-	void OnGUI()
-	{
-		GUI.skin = skin;
+		void Awake()
+		{
+			if(skin == null)
+				Debug.LogError("GUISkin is null!");
+		}
 
-		GUILayout.BeginHorizontal();
+		void OnGUI()
+		{
+			GUI.skin = skin;
 
-		if(GUILayout.Button("File/New Cube"))	
-			Debug.Log("boogers");
+			GUILayout.BeginHorizontal();
 
-		if(GUILayout.Button("File/Boogesr Cube"))	
-			Debug.Log("boogers");
+			if(GUILayout.Button("File/New Cube"))	
+				SceneUtility.Add( GameObject.CreatePrimitive(PrimitiveType.Cube) );
 
-		GUILayout.FlexibleSpace();
+			GUILayout.FlexibleSpace();
 
-		GUILayout.EndHorizontal();
+			GUILayout.EndHorizontal();
+		}
 	}
 }
