@@ -11,7 +11,7 @@ namespace Modeler.Editor
 		 */
 		public void OnPreprocessTexture()
 		{
-			if( assetPath.IndexOf("GUI/") < 0 )
+			if( assetPath.IndexOf("GUI/Icon") < 0 )
 				return;
 
 			TextureImporter ti = (TextureImporter) assetImporter;

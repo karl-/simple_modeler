@@ -20,6 +20,7 @@ namespace Modeler
 		float rotationY = 0.0f;
 
 		private Vector2 previousMousePosition = Vector2.zero;
+		private bool mouseDown = false;
 
 		void Start()
 		{
@@ -28,12 +29,21 @@ namespace Modeler
 
 		void FixedUpdate()
 		{
-			// Always update mouse delta.
+			if(!Input.GetMouseButton(RIGHT_MOUSE_BUTTON))
+			{
+				mouseDown = false;
+				return;
+			}
+
+			if(!mouseDown)
+			{
+				mouseDown = true;
+				previousMousePosition = Input.mousePosition;
+			}
+
 			Vector2 mouseDelta = ((Vector2)Input.mousePosition) - previousMousePosition;
 			previousMousePosition = Input.mousePosition;
 
-			if(!Input.GetMouseButton(RIGHT_MOUSE_BUTTON))
-				return;
 
 			Vector2 screenSize = new Vector2(Screen.width, Screen.height);
 

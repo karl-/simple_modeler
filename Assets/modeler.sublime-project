@@ -2,7 +2,7 @@
 	"folders":
 	[
 		{
-			"path": "Code",
+			"path": "Modeler/",
 			"file_exclude_patterns":
 			[
 				"*.unity",
