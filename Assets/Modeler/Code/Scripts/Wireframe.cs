@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using UMesh = UnityEngine.Mesh;
 namespace Modeler
 {
 	/**
@@ -7,7 +7,7 @@ namespace Modeler
 	 */
 	public class Wireframe : MonoBehaviour
 	{
-		Mesh wireframeMesh = null;
+		UMesh wireframeMesh = null;
 
 		static Material _wireframeMaterial = null;
 
@@ -40,7 +40,7 @@ namespace Modeler
 		 * Rebuild mesh with individual triangles, adding barycentric coordinates
 		 * in the colors channel.
 		 */
-		Mesh GenerateBarycentric(Mesh m)
+		UMesh GenerateBarycentric(UMesh m)
 		{
 			int[] tris = m.triangles;
 			int triangleCount = tris.Length;
@@ -65,7 +65,7 @@ namespace Modeler
 				tris[i] = i;
 			}
 
-			Mesh res = new Mesh();
+			UMesh res = new UMesh();
 
 			res.Clear();
 			res.vertices = vertices;

@@ -1,18 +1,19 @@
 using UnityEngine;
+using UMesh = UnityEngine.Mesh;
 
 namespace Modeler
 {
 	public static class Handle
 	{
-		private static Mesh _translateMesh = null;
+		private static UMesh _translateMesh = null;
 
-		private static Mesh translateMesh
+		private static UMesh translateMesh
 		{
 			get
 			{
 				if( _translateMesh == null )
 				{
-					Mesh m = new Mesh();
+					UMesh m = new UMesh();
 
 					m.vertices = new Vector3[]
 					{

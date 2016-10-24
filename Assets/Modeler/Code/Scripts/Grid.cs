@@ -4,6 +4,7 @@
 
 using UnityEngine;
 using System.Collections;
+using UMesh = UnityEngine.Mesh;
 
 namespace Modeler
 {
@@ -33,7 +34,7 @@ namespace Modeler
 		/**
 		 * Builds a grid object in 2d space
 		 */
-		Mesh GridMesh(int lineCount, float scale)
+		UMesh GridMesh(int lineCount, float scale)
 		{
 			float half = (lineCount/2f) * scale;
 
@@ -69,7 +70,7 @@ namespace Modeler
 				normals[i] = Vector3.up;
 			}
 
-			Mesh tm = new Mesh();
+			UMesh tm = new UMesh();
 
 			tm.name = "GridMesh";
 			tm.vertices = lines;
