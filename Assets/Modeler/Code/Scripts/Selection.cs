@@ -15,7 +15,7 @@ namespace Modeler
 		{
 			if( gameObjects.Add(go) )
 			{
-				go.TryAddComponent<Wireframe>();
+				go.AddComponent<Wireframe>();
 				return true;
 			}
 
@@ -50,6 +50,9 @@ namespace Modeler
 
 			GameObject hit = null;
 
+			if(!AppendModifier())
+				Clear();
+
 			if( Picker.PickGameObject(ray, out hit, null) )
 			{
 				if( AppendModifier() )
@@ -59,17 +62,12 @@ namespace Modeler
 				}
 				else
 				{
-					Clear();
 					Add(hit);
 				}
 
 				return true;
 			}
-			else if(!AppendModifier())
-			{
-				Clear();
-			}
-
+	
 			return false;
 		}
 	}
