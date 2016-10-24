@@ -9,17 +9,7 @@ namespace Modeler
 	{
 		UMesh wireframeMesh = null;
 
-		static Material _wireframeMaterial = null;
-
-		static Material wireframeMaterial
-		{
-			get
-			{
-				if(_wireframeMaterial == null)
-					_wireframeMaterial = (Material) Resources.Load("Material/Wireframe", typeof(Material));
-				return _wireframeMaterial;
-			}
-		}
+		static Material wireframeMaterial { get { return ResourceUtility.Load<Material>("Material/Wireframe"); } }
 
 		void Awake()
 		{
