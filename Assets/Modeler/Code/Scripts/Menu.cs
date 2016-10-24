@@ -35,7 +35,11 @@ namespace Modeler
 			GUILayout.BeginHorizontal("Group", GUILayout.MinWidth(Screen.width));
 
 				if(GUILayout.Button("New Cube"))	
-					SceneUtility.Add( GameObject.CreatePrimitive(PrimitiveType.Cube) );
+				{
+					GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+					go.GetComponent<MeshRenderer>().sharedMaterial = (Material) Resources.Load("Material/Default", typeof(Material));
+					SceneUtility.Add( go );
+				}
 
 				GUILayout.FlexibleSpace();
 
@@ -60,7 +64,7 @@ namespace Modeler
 			 */
 			if( Selection.gameObjects.Count > 0 )
 			{
-				GUILayout.BeginVertical("Group", GUILayout.MaxWidth(300f));
+				GUILayout.BeginVertical("Group", GUILayout.MaxWidth(300f), GUILayout.MaxHeight(Screen.height - 40));
 
 					GUILayout.Label("Mesh Information", "Header");
 
