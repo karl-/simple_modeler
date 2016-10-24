@@ -1,13 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Linq;
 
 namespace Modeler
 {
-	public class SceneInput : MonoBehaviour
+	public class SceneInput : MonoBehaviourSingleton<SceneInput>
 	{
-		private static SceneInput _instance;
-		public static SceneInput instance { get { return _instance; } }
-
 		const int LEFT_MOUSE_BUTTON = 0;
 		const int RIGHT_MOUSE_BUTTON = 1;
 
@@ -28,9 +26,18 @@ namespace Modeler
 			}
 		}
 
-		void Awake()
+
+		Vector3 SnapAxis(Vector3 dir)
 		{
-			_instance = this;
+			float x = Mathf.Abs(dir.x), y = Mathf.Abs(dir.y), z = Mathf.Abs(dir.z);
+
+			if(x > y && x > z)
+				return dir.x < 0 ? -Vector3.right : Vector3.right;
+
+			if(y > x && y > z)
+				return dir.y < 0 ? -Vector3.up : Vector3.up;
+
+			return dir.z < 0 ? -Vector3.forward : Vector3.forward;
 		}
 
 		void Update ()
@@ -40,21 +47,37 @@ namespace Modeler
 
 			if( Input.GetMouseButtonDown(LEFT_MOUSE_BUTTON) )
 			{
-				Selection.PickGameObject(Input.mousePosition);
+				if( Menu.instance.IsScreenPointOverGUI(Input.mousePosition) )
+					return;
+
+				if( editMode == EditMode.Object )
+					Selection.PickGameObject(Input.mousePosition);
+				else
+					ElementPicker();
 			}
 
+			Transform camTrs = Camera.main.transform;
+
 			if( Input.GetKey(KeyCode.W) )
-				TranslateSelection( Vector3.forward * translationStep );
+				TranslateSelection( SnapAxis(camTrs.forward) * translationStep );
 			else if( Input.GetKey(KeyCode.S) )
-				TranslateSelection( -Vector3.forward * translationStep );
+				TranslateSelection(  SnapAxis(-camTrs.forward) * translationStep );
 			else if( Input.GetKey(KeyCode.D) )
-				TranslateSelection( Vector3.right * translationStep );
+				TranslateSelection( SnapAxis(camTrs.right) * translationStep );
 			else if( Input.GetKey(KeyCode.A) )
-				TranslateSelection( -Vector3.right * translationStep );
+				TranslateSelection(  SnapAxis(-camTrs.right) * translationStep );
 			else if( Input.GetKey(KeyCode.E) )
-				TranslateSelection( Vector3.up * translationStep );
+				TranslateSelection( SnapAxis(camTrs.up) * translationStep );
 			else if( Input.GetKey(KeyCode.Q) )
-				TranslateSelection( -Vector3.up * translationStep );
+				TranslateSelection( SnapAxis(-camTrs.up) * translationStep );
+
+			if( Input.GetKey(KeyCode.Backspace) || Input.GetKey(KeyCode.Delete) )
+				SceneUtility.Delete(Selection.gameObjects);
+		}
+
+		void ElementPicker()
+		{
+
 		}
 
 		void TranslateSelection(Vector3 direction)

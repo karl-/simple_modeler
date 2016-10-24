@@ -1,15 +1,23 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Modeler
 {
-	public class Menu : MonoBehaviour
+	public class Menu : MonoBehaviourSingleton<Menu>
 	{
+
+
 		public Color onColor = Color.green;
+
+		private List<Rect> usedRects = new List<Rect>();
 
 		void OnGUI()
 		{
 			GUI.skin = ModelerGUI.skin;
+
+			if( Event.current.type == EventType.Repaint )
+				usedRects.Clear();
 
 			/**
 			 *	Toolbar
@@ -34,6 +42,9 @@ namespace Modeler
 
 			GUILayout.EndHorizontal();
 
+			if( Event.current.type == EventType.Repaint )
+				usedRects.Add(GUILayoutUtility.GetLastRect());
+
 			/**
 			 *	Settings
 			 */
@@ -42,6 +53,8 @@ namespace Modeler
 				GUILayout.Label("Settings", "Header");
 
 			GUILayout.EndVertical();
+
+			usedRects.Add(GUILayoutUtility.GetLastRect());
 		}
 
 		private bool EditModeButton(EditMode mode, string style)
@@ -53,6 +66,17 @@ namespace Modeler
 			GUI.backgroundColor = em == mode ? onColor : Color.white;
 
 			return GUILayout.Button(mode.ToString(), gstyle);
+		}
+
+		public bool IsScreenPointOverGUI(Vector2 point)
+		{
+			Vector2 p = new Vector2(point.x, Screen.height - point.y);
+				
+			foreach(Rect r in usedRects)
+				if(r.Contains(p))
+					return true;
+
+			return false;
 		}
 	}
 }

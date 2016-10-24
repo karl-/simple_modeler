@@ -54,7 +54,7 @@ namespace Modeler
 			transform.localRotation = Quaternion.AngleAxis(rotationX, Vector3.up) * Quaternion.AngleAxis(rotationY, Vector3.left);
 
 			transform.position += Input.GetAxis("Vertical") * transform.forward * moveSpeed * Time.deltaTime;
-			transform.position += Input.GetAxis("WorldVertical") * Vector3.up * moveSpeed * Time.deltaTime;
+			transform.position += Input.GetAxis("WorldVertical") * transform.up * moveSpeed * Time.deltaTime;
 			transform.position += Input.GetAxis("Horizontal") * transform.right * moveSpeed * Time.deltaTime;
 		}
 	}

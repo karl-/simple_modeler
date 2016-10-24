@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace Modeler
 {
@@ -40,5 +41,15 @@ namespace Modeler
 			go.transform.SetParent(root.transform, true);
 			return go;
 		}
+
+		public static void Delete(IEnumerable<GameObject> gameObjects)
+		{
+			foreach(GameObject go in gameObjects)
+				Selection.Remove(go);
+
+			foreach(GameObject go in gameObjects)
+				GameObject.Destroy(go);
+		}
+
 	}
 }
