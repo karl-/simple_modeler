@@ -40,16 +40,5 @@ namespace Modeler
 			go.transform.SetParent(root.transform, true);
 			return go;
 		}
-
-		public static void SetWireframeEnabled(bool wireframeEnabled)
-		{
-			foreach(Transform t in root.transform)
-			{
-				if(wireframeEnabled)
-					t.TryAddComponent<Wireframe>();
-				else
-					t.TryRemoveComponent<Wireframe>();
-			}
-		}
 	}
 }

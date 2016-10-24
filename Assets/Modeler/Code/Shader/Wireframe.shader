@@ -57,7 +57,9 @@ Shader "Custom/Wireframe"
 			v2f vert(appdata v)
 			{
 				v2f o;
-				o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+				o.pos = mul(UNITY_MATRIX_MV, v.vertex);
+				o.pos.xyz *= .98;
+				o.pos = mul(UNITY_MATRIX_P, o.pos);
 				o.color = v.color;
 				return o;
 			}

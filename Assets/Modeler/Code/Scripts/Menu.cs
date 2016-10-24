@@ -5,7 +5,7 @@ namespace Modeler
 {
 	public class Menu : MonoBehaviour
 	{
-		bool wireframeEnabled = true;
+		public Color onColor = Color.green;
 
 		void OnGUI()
 		{
@@ -21,6 +21,17 @@ namespace Modeler
 
 				GUILayout.FlexibleSpace();
 
+				if( EditModeButton(EditMode.Object, "ToolbarLeft") )
+					SceneInput.instance.editMode = EditMode.Object;
+				if( EditModeButton(EditMode.Face, "ToolbarMid") )
+					SceneInput.instance.editMode = EditMode.Face;
+				if( EditModeButton(EditMode.Edge, "ToolbarMid") )
+					SceneInput.instance.editMode = EditMode.Edge;
+				if( EditModeButton(EditMode.Vertex, "ToolbarRight") )
+					SceneInput.instance.editMode = EditMode.Vertex;
+
+				GUI.backgroundColor = Color.white;
+
 			GUILayout.EndHorizontal();
 
 			/**
@@ -30,14 +41,18 @@ namespace Modeler
 
 				GUILayout.Label("Settings", "Header");
 
-				if( GUILayout.Button("Toggle Wireframe") )
-				{
-					wireframeEnabled = !wireframeEnabled;
-					SceneUtility.SetWireframeEnabled(wireframeEnabled);
-				}
-
 			GUILayout.EndVertical();
+		}
 
+		private bool EditModeButton(EditMode mode, string style)
+		{
+			EditMode em = SceneInput.instance.editMode;
+
+			GUIStyle gstyle = em == mode ? ModelerGUI.GetStyleOn(style) : GUI.skin.GetStyle(style);
+
+			GUI.backgroundColor = em == mode ? onColor : Color.white;
+
+			return GUILayout.Button(mode.ToString(), gstyle);
 		}
 	}
 }

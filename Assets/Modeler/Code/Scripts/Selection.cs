@@ -59,6 +59,7 @@ namespace Modeler
 				}
 				else
 				{
+					Clear();
 					Add(hit);
 				}
 
