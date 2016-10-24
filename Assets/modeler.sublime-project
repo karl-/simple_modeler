@@ -1,0 +1,34 @@
+{
+	"folders":
+	[
+		{
+			"path": "Code",
+			"file_exclude_patterns":
+			[
+				"*.unity",
+				"*.guiskin",
+				"*.dll",
+				"*.meta",
+				"*.prefab",
+				"*.anim",
+				"*.physicMaterial",
+				"*.flare",
+				"*.cubemap",
+				"*.font",
+				"*.fontsettings",
+				"*.renderTexture",
+				"*.csproj"
+			],
+			"folder_exclude_patterns":
+			[
+				"Resources",
+				"docs/site",
+				"bin",
+				"polybrush/Library",
+				"polybrush/Temp",
+				"polybrush/ProjectSettings",
+				"polybrush/Assets/z_Ignore",
+			]
+		}
+	]
+}
