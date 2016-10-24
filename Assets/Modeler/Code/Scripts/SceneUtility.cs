@@ -15,9 +15,18 @@ namespace Modeler
 			{
 				if(_root == null)
 				{
-					_root = new GameObject();
-					_root.name = "SceneGraph Root";
-					_root.transform.position = Vector3.zero;
+					GameObject go = GameObject.Find("SceneGraph Root");
+
+					if(go != null)
+					{
+						_root = go;
+					}
+					else
+					{
+						_root = new GameObject();
+						_root.name = "SceneGraph Root";
+						_root.transform.position = Vector3.zero;
+					}
 				}
 				return _root;
 			}
@@ -30,6 +39,17 @@ namespace Modeler
 		{
 			go.transform.SetParent(root.transform, true);
 			return go;
+		}
+
+		public static void SetWireframeEnabled(bool wireframeEnabled)
+		{
+			foreach(Transform t in root.transform)
+			{
+				if(wireframeEnabled)
+					t.TryAddComponent<Wireframe>();
+				else
+					t.TryRemoveComponent<Wireframe>();
+			}
 		}
 	}
 }

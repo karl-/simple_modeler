@@ -10,11 +10,7 @@ namespace Modeler
 		void Update ()
 		{
 
-			if( Input.GetMouseButtonDown(LEFT_MOUSE_BUTTON) ) 
-			{
-				Selection.PickGameObject(Input.mousePosition);
-			}
-		
+			
 		}
 	}
 }

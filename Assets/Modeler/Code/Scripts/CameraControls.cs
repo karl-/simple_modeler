@@ -16,8 +16,8 @@ namespace Modeler
 		public float lookSpeed = 15f;
 		public float moveSpeed = 15f;
 
-		float rotationX = 0.0f;
-		float rotationY = 0.0f;
+		float rotationX = 45.0f;
+		float rotationY = -35.0f;
 
 		private Vector2 previousMousePosition = Vector2.zero;
 		private bool mouseDown = false;
@@ -43,7 +43,6 @@ namespace Modeler
 
 			Vector2 mouseDelta = ((Vector2)Input.mousePosition) - previousMousePosition;
 			previousMousePosition = Input.mousePosition;
-
 
 			Vector2 screenSize = new Vector2(Screen.width, Screen.height);
 

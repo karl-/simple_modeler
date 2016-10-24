@@ -8,6 +8,11 @@ namespace Modeler
 		 *	Checks if the GameObject already contains component, returning the existing 
 		 *	instance if so.  If not, a new component is added and returned.
 		 */
+		public static T TryAddComponent<T>(this Transform go) where T : Component
+		{
+			return go.gameObject.TryAddComponent<T>();
+		}
+
 		public static T TryAddComponent<T>(this GameObject go) where T : Component
 		{
 			T t = go.GetComponent<T>();
@@ -21,6 +26,11 @@ namespace Modeler
 		/**
 		 *	Removes a component if the GameObject has an instance.
 		 */
+		public static bool TryRemoveComponent<T>(this Transform go) where T : Component
+		{
+			return go.gameObject.TryRemoveComponent<T>();
+		}
+
 		public static bool TryRemoveComponent<T>(this GameObject go) where T : Component
 		{
 			T t = go.GetComponent<T>();
