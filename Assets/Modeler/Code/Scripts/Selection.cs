@@ -48,10 +48,10 @@ namespace Modeler
 		{
 			Ray ray = Camera.main.ScreenPointToRay(mousePosition);
 
-			GameObject hit = null;
-
-			if(!AppendModifier())
+			if( !AppendModifier() )
 				Clear();
+			
+			GameObject hit = null;
 
 			if( Picker.PickGameObject(ray, out hit, null) )
 			{
