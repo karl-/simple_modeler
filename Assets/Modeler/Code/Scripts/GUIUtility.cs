@@ -22,7 +22,7 @@ namespace Modeler
 					foreach(GUIStyle style in _skin.customStyles)
 					{
 						if(style.fontSize > 0)
-							style.fontSize = _skin.font.fontSize * 1.5;
+							style.fontSize = (int) (_skin.font.fontSize * 1.5f);
 					}
 #endif
 				}

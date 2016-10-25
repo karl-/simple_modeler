@@ -47,6 +47,7 @@ namespace Modeler
 			Mesh mesh = GeometryBuilder.CreateCube();
 			GameObject go = new GameObject();
 			go.AddComponent<MeshComponent>().source = mesh;
+			go.TryAddComponent<MeshRenderer>().sharedMaterial = ResourceUtility.Load<Material>("Material/Default");
 			return Add(go);
 		}
 
