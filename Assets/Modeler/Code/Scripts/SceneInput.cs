@@ -16,7 +16,7 @@ namespace Modeler
 		public EditMode editMode
 		{
 			get
-			{	
+			{
 				return _editMode;
 			}
 
@@ -42,7 +42,7 @@ namespace Modeler
 
 		void Update ()
 		{
-			if( Input.GetMouseButton(RIGHT_MOUSE_BUTTON) )
+			if( CameraControls.instance.IsUsingMouse() || CameraControls.instance.IsUsingKey() )
 				return;
 
 			if( Input.GetMouseButtonDown(LEFT_MOUSE_BUTTON) )

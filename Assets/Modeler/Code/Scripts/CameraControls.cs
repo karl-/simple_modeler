@@ -119,7 +119,7 @@ namespace Modeler
 		/**
 		 * If the scene camera controls are currently using the mouse for navigation, returns false.
 		 */
-		public bool IsUsingMouse(Vector2 mousePosition)
+		public bool IsUsingMouse()
 		{
 			return cameraState != ViewTool.None || eatMouse || Input.GetKey(KeyCode.LeftAlt);
 		}

@@ -15,11 +15,15 @@ namespace Modeler
 				{
 					_skin = (GUISkin) Resources.Load("Skin/Modeler", typeof(GUISkin));
 
-					// Crappy workaround for retina displays
+					// Crappy workaround for retina displays - not scale-able at all
 #if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
 					_skin.font = (Font) Resources.Load("Font/FiraCode-Retina", typeof(Font));
+
 					foreach(GUIStyle style in _skin.customStyles)
-						style.fontSize *= 2;
+					{
+						if(style.fontSize > 0)
+							style.fontSize = _skin.font.fontSize * 1.5;
+					}
 #endif
 				}
 				return _skin;
