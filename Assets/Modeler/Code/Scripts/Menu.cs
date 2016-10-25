@@ -34,11 +34,12 @@ namespace Modeler
 			 */
 			GUILayout.BeginHorizontal("Group", GUILayout.MinWidth(Screen.width));
 
-				if(GUILayout.Button("New Cube"))	
+				if(GUILayout.Button("New Cube"))
 				{
-					GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-					go.GetComponent<MeshRenderer>().sharedMaterial = (Material) Resources.Load("Material/Default", typeof(Material));
-					SceneUtility.Add( go );
+					// GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+					// go.GetComponent<MeshRenderer>().sharedMaterial = (Material) Resources.Load("Material/Default", typeof(Material));
+					// SceneUtility.Add( go );
+					SceneUtility.AddShape(Shape.Cube);
 				}
 
 				GUILayout.FlexibleSpace();
@@ -160,7 +161,7 @@ namespace Modeler
 		public bool IsScreenPointOverGUI(Vector2 point)
 		{
 			Vector2 p = new Vector2(point.x, Screen.height - point.y);
-				
+
 			foreach(Rect r in usedRects)
 				if(r.Contains(p))
 					return true;

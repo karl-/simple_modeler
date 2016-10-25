@@ -48,8 +48,6 @@ namespace Modeler
 			{
 				vertices[i] = mesh_vertices[tris[i]];
 				normals[i] 	= mesh_normals[tris[i]];
-				uv[i] 		= mesh_uv[tris[i]];
-
 				colors[i] = i % 3 == 0 ? new Color(1, 0, 0, 0) : (i % 3) == 1 ? new Color(0, 1, 0, 0) : new Color(0, 0, 1, 0);
 
 				tris[i] = i;
@@ -62,7 +60,6 @@ namespace Modeler
 			res.triangles = tris;
 			res.normals = normals;
 			res.colors = colors;
-			res.uv = uv;
 
 			return res;
 		}

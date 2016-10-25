@@ -1,61 +1,368 @@
-﻿using UnityEngine;
+﻿/**
+ * This script controls camera movement.
+ *
+ * Partially derived from FlyThrough.js available on the Unify Wiki
+ * 	- http://wiki.unity3d.com/index.php/FlyThrough
+ */
+
+// #define CONTROLLER
+// #define USE_DELTA_TIME
+
+using UnityEngine;
 using System.Collections;
+using UnityEngine.EventSystems;
 
 namespace Modeler
 {
 	/**
-	 *	Simple FPS flythrough style camera controls.
-	 *	
-	 *	Note - This uses hardcoded keycodes and is generally not robust.
-	 *	Would not recommend using for anything serious.
+	 * Requires InputSettings to have:
+	 * - "Horizontal", "Vertical", "CameraUp", with Gravity and Sensitivity set to 3.
 	 */
-	public class CameraControls : MonoBehaviour
+	[RequireComponent(typeof(Camera))]
+	public class CameraControls : MonoBehaviourSingleton<CameraControls>
 	{
-		const int RIGHT_MOUSE_BUTTON = 1;
+		public ViewTool cameraState { get; private set; }
 
-		public float lookSpeed = 15f;
-		public float moveSpeed = 15f;
+		public Texture2D PanCursor;
+		public Texture2D OrbitCursor;
+		public Texture2D DollyCursor;
+		public Texture2D LookCursor;
+		private Texture2D currentCursor;
 
-		float rotationX = 45.0f;
-		float rotationY = -35.0f;
+		const int CURSOR_ICON_SIZE = 64;
 
-		private Vector2 previousMousePosition = Vector2.zero;
-		private bool mouseDown = false;
+		const string INPUT_MOUSE_SCROLLWHEEL = "Mouse ScrollWheel";
+		const string INPUT_MOUSE_X = "Mouse X";
+		const string INPUT_MOUSE_Y = "Mouse Y";
+
+		const int LEFT_MOUSE = 0;
+		const int RIGHT_MOUSE = 1;
+		const int MIDDLE_MOUSE = 2;
+
+		const float MIN_CAM_DISTANCE = 1f;
+		const float MAX_CAM_DISTANCE = 100f;
+
+	#if USE_DELTA_TIME
+		public float moveSpeed = 15f;		///< How fast the camera position moves.
+		public float lookSpeed = 200f;		///< How fast the camera rotation adjusts.
+		public float orbitSpeed = 200f;		///< How fast the camera rotation adjusts.
+		public float scrollModifier = 100f; ///< How fast the mouse scroll wheel affects distance from pivot.
+		public float zoomSpeed = .05f;
+	#else
+		public float moveSpeed = 15f;		///< How fast the camera position moves.
+		public float lookSpeed = 5f;		///< How fast the camera rotation adjusts.
+		public float orbitSpeed = 7f;		///< How fast the camera rotation adjusts.
+		public float scrollModifier = 100f; ///< How fast the mouse scroll wheel affects distance from pivot.
+		public float zoomSpeed = .1f;
+	#endif
+
+		private bool eatMouse = false;
+
+		private Camera cam;
+
+		private Vector3 pivot = Vector3.zero;
+		public Vector3 GetPivot() { return pivot; }
+		private float distanceToCamera = 10f;
+
+		private Vector3 prev_mousePosition = Vector3.zero;	///< Store the mouse position from the last frame.  Used in calculating deltas for mouse movement.
+
+		private Rect mouseCursorRect = new Rect(0,0,CURSOR_ICON_SIZE,CURSOR_ICON_SIZE);
+		private Rect screenCenterRect = new Rect(0,0,CURSOR_ICON_SIZE,CURSOR_ICON_SIZE);
+
+		private bool currentActionValid = true;
+
+		Vector3 CamTarget()
+		{
+			return transform.position + transform.forward * distanceToCamera;
+		}
 
 		void Start()
 		{
-			previousMousePosition = Input.mousePosition;
+			cam = GetComponent<Camera>();
+			distanceToCamera = Vector3.Distance(pivot, Camera.main.transform.position);
 		}
 
-		void FixedUpdate()
+		public GameObject plane;
+
+		void OnGUI()
 		{
-			if(!Input.GetMouseButton(RIGHT_MOUSE_BUTTON))
+			float screenHeight = Screen.height;
+
+			mouseCursorRect.x = Input.mousePosition.x - 16;
+			mouseCursorRect.y = (screenHeight - Input.mousePosition.y) - 16;
+
+			screenCenterRect.x = Screen.width/2-32;
+			screenCenterRect.y = screenHeight/2-32;
+
+			Cursor.visible = cameraState == ViewTool.None;	/// THIS FLICKERS IN EDITOR, BUT NOT BUILD
+
+			if(cameraState != ViewTool.None)
 			{
-				mouseDown = false;
+				switch(cameraState)
+				{
+					case ViewTool.Orbit:
+						GUI.Label(mouseCursorRect, OrbitCursor);
+						break;
+					case ViewTool.Pan:
+						GUI.Label(mouseCursorRect, PanCursor);
+						break;
+					case ViewTool.Dolly:
+						GUI.Label(mouseCursorRect, DollyCursor);
+						break;
+					case ViewTool.Look:
+						GUI.Label(mouseCursorRect, LookCursor);
+						break;
+				}
+			}
+		}
+
+		/**
+		 * If the scene camera controls are currently using the mouse for navigation, returns false.
+		 */
+		public bool IsUsingMouse(Vector2 mousePosition)
+		{
+			return cameraState != ViewTool.None || eatMouse || Input.GetKey(KeyCode.LeftAlt);
+		}
+
+		public bool IsUsingKey()
+		{
+			return Input.GetKey(KeyCode.LeftAlt);
+		}
+
+		bool CheckMouseOverGUI()
+		{
+			return !Menu.instance.IsScreenPointOverGUI(Input.mousePosition);
+		}
+
+		void LateUpdate()
+		{
+			if(Input.GetMouseButtonUp(0) || Input.GetMouseButtonUp(1) || Input.GetMouseButtonUp(2))
+			{
+				currentActionValid = true;
+				eatMouse = false;
+			}
+			else
+			if(Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1) || Input.GetMouseButtonDown(2))
+			{
+				currentActionValid = CheckMouseOverGUI();
+			}
+			else
+			{
+				if(transform.hasChanged)
+				{
+					transform.hasChanged = false;
+				}
+			}
+
+			cameraState = ViewTool.None;
+
+			/**
+			 * Camera is flying itself to a target
+			 */
+			if(zooming)
+			{
+				transform.position = Vector3.Lerp(previousPosition, targetPosition, (zoomProgress += Time.deltaTime)/zoomSpeed);
+				if( Vector3.Distance(transform.position, targetPosition) < .1f) zooming = false;
+			}
+
+			if( (Input.GetAxis(INPUT_MOUSE_SCROLLWHEEL) != 0f || (Input.GetMouseButton(RIGHT_MOUSE) && Input.GetKey(KeyCode.LeftAlt))) && CheckMouseOverGUI())
+			{
+				float delta = Input.GetAxis(INPUT_MOUSE_SCROLLWHEEL);
+
+				if( Mathf.Approximately(delta, 0f) )
+				{
+					cameraState = ViewTool.Dolly;
+					delta = HandleUtility.CalcSignedMouseDelta(Input.mousePosition, prev_mousePosition);
+				}
+
+				distanceToCamera -= delta * (distanceToCamera/MAX_CAM_DISTANCE) * scrollModifier;
+				distanceToCamera = Mathf.Clamp(distanceToCamera, MIN_CAM_DISTANCE, MAX_CAM_DISTANCE);
+				transform.position = transform.localRotation * (Vector3.forward * -distanceToCamera) + pivot;
+			}
+
+			bool viewTool = true;
+
+			/**
+			 * If the current tool isn't View, or no mouse button is pressed, record the mouse position then early exit.
+			 */
+			if(	!currentActionValid || (viewTool
+	#if !CONTROLLER
+				&& !Input.GetMouseButton(LEFT_MOUSE)
+				&& !Input.GetMouseButton(RIGHT_MOUSE)
+				&& !Input.GetMouseButton(MIDDLE_MOUSE)
+				&& !Input.GetKey(KeyCode.LeftAlt)
+	#endif
+				) )
+			{
+				Rect screen = new Rect(0,0,Screen.width,Screen.height);
+
+				if(screen.Contains(Input.mousePosition))
+					prev_mousePosition = Input.mousePosition;
+
 				return;
 			}
 
-			if(!mouseDown)
+			/**
+			  * Flying Hammer Style
+			  */
+			if( Input.GetMouseButton(RIGHT_MOUSE) && !Input.GetKey(KeyCode.LeftAlt) )//|| Input.GetKey(KeyCode.LeftShift) )
 			{
-				mouseDown = true;
-				previousMousePosition = Input.mousePosition;
+				cameraState = ViewTool.Look;
+
+				eatMouse = true;
+
+				// Rotation
+				float rot_x = Input.GetAxis(INPUT_MOUSE_X);
+				float rot_y = Input.GetAxis(INPUT_MOUSE_Y);
+
+				Vector3 eulerRotation = transform.localRotation.eulerAngles;
+
+				#if USE_DELTA_TIME
+				eulerRotation.x -= rot_y * lookSpeed * Time.deltaTime; 	// Invert Y axis
+				eulerRotation.y += rot_x * lookSpeed * Time.deltaTime;
+				#else
+				eulerRotation.x -= rot_y * lookSpeed;
+				eulerRotation.y += rot_x * lookSpeed;
+				#endif
+				eulerRotation.z = 0f;
+				transform.localRotation = Quaternion.Euler(eulerRotation);
+
+				// PositionHandle-- Always use delta time when flying
+				float speed = moveSpeed * Time.deltaTime;
+
+				transform.position += transform.forward * speed * Input.GetAxis("Vertical");
+				transform.position += transform.right * speed * Input.GetAxis("Horizontal");
+				try {
+					transform.position += transform.up * speed * Input.GetAxis("CameraUp");
+				} catch {
+					Debug.LogWarning("CameraUp input is not configured.  Open \"Edit/Project Settings/Input\" and add an input named \"CameraUp\", mapping q and e to Negative and Positive buttons.");
+				}
+
+				pivot = transform.position + transform.forward * distanceToCamera;
+			}
+			else
+			/**
+			 * Orbit
+			 */
+			if(Input.GetKey(KeyCode.LeftAlt) && Input.GetMouseButton(LEFT_MOUSE))
+			{
+				cameraState = ViewTool.Orbit;
+
+				eatMouse = true;
+
+				float rot_x = Input.GetAxis(INPUT_MOUSE_X);
+				float rot_y = -Input.GetAxis(INPUT_MOUSE_Y);
+
+				Vector3 eulerRotation = transform.localRotation.eulerAngles;
+
+				if( (Mathf.Approximately(eulerRotation.x, 90f) && rot_y > 0f) ||
+					(Mathf.Approximately(eulerRotation.x, 270f) && rot_y < 0f) )
+					rot_y = 0f;
+
+				#if USE_DELTA_TIME
+				eulerRotation.x += rot_y * orbitSpeed * Time.deltaTime;
+				eulerRotation.y += rot_x * orbitSpeed * Time.deltaTime;
+				#else
+				eulerRotation.x += rot_y * orbitSpeed;
+				eulerRotation.y += rot_x * orbitSpeed;
+				#endif
+
+				eulerRotation.z = 0f;
+
+				transform.localRotation = Quaternion.Euler( eulerRotation );
+				transform.position = CalculateCameraPosition(pivot);
+			}
+			else
+			/**
+			 * Pan
+			 */
+			if(Input.GetMouseButton(MIDDLE_MOUSE) || (Input.GetMouseButton(LEFT_MOUSE) && viewTool ) )
+			{
+				cameraState = ViewTool.Pan;
+
+				Vector2 delta = Input.mousePosition - prev_mousePosition;
+
+				delta.x = ScreenToWorldDistance(delta.x, distanceToCamera);
+				delta.y = ScreenToWorldDistance(delta.y, distanceToCamera);
+
+				transform.position -= transform.right * delta.x;
+				transform.position -= transform.up * delta.y;
+
+				pivot = transform.position + transform.forward * distanceToCamera;
 			}
 
-			Vector2 mouseDelta = ((Vector2)Input.mousePosition) - previousMousePosition;
-			previousMousePosition = Input.mousePosition;
+			prev_mousePosition = Input.mousePosition;
+		}
 
-			Vector2 screenSize = new Vector2(Screen.width, Screen.height);
+		Vector3 CalculateCameraPosition(Vector3 target)
+		{
+			return transform.localRotation * (Vector3.forward * -distanceToCamera) + target;
+		}
 
-			rotationX += (mouseDelta.x / screenSize.x) * lookSpeed;
-			rotationY += (mouseDelta.y / screenSize.y) * lookSpeed;
+		bool zooming = false;
+		float zoomProgress = 0f;
+		Vector3 previousPosition = Vector3.zero, targetPosition = Vector3.zero;
 
-			rotationY = Mathf.Clamp (rotationY, -90f, 90f);
+		/**
+		 * Lerp the camera to the current selection
+		 */
+		public static void Focus(Vector3 target)
+		{
+			instance.ZoomInternal(target, 10f);
+		}
 
-			transform.localRotation = Quaternion.AngleAxis(rotationX, Vector3.up) * Quaternion.AngleAxis(rotationY, Vector3.left);
+		public static void Focus(Vector3 target, float distance)
+		{
+			instance.ZoomInternal(target, distance);
+		}
 
-			transform.position += Input.GetAxis("Vertical") * transform.forward * moveSpeed * Time.deltaTime;
-			transform.position += Input.GetAxis("WorldVertical") * transform.up * moveSpeed * Time.deltaTime;
-			transform.position += Input.GetAxis("Horizontal") * transform.right * moveSpeed * Time.deltaTime;
+		public static void Focus(GameObject target)
+		{
+			instance.ZoomInternal(target);
+		}
+
+		private void ZoomInternal( Vector3 target, float distance )
+		{
+			pivot = target;
+			distanceToCamera = distance;
+			previousPosition = transform.position;
+			targetPosition = CalculateCameraPosition( pivot );
+			zoomProgress = 0f;
+			zooming = true;
+		}
+
+		/**
+		 * Lerp the camera to the current selection
+		 */
+		private void ZoomInternal( GameObject target )
+		{
+			Vector3 center = target.transform.position;
+			Renderer renderer = target.GetComponent<Renderer>();
+			Bounds bounds = renderer != null ? renderer.bounds : new Bounds(center, Vector3.one * 10f);
+
+			distanceToCamera = ObjectUtility.CalcMinDistanceToBounds(cam, bounds);
+			distanceToCamera += distanceToCamera;
+			center = bounds.center;
+
+			ZoomInternal( center, distanceToCamera );
+		}
+
+		private float ScreenToWorldDistance(float screenDistance, float distanceFromCamera)
+		{
+			Vector3 start = cam.ScreenToWorldPoint(Vector3.forward * distanceFromCamera);
+			Vector3 end = cam.ScreenToWorldPoint( new Vector3(screenDistance, 0f, distanceFromCamera));
+			return CopySign(Vector3.Distance(start, end), screenDistance);
+		}
+
+		/**
+		 * Return the magnitude of X with the sign of Y.
+		 */
+		private float CopySign(float x, float y)
+		{
+			if(x < 0f && y < 0f || x > 0f && y > 0f || x == 0f || y == 0f)
+				return x;
+			else
+				return -x;
 		}
 	}
 }

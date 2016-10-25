@@ -42,6 +42,14 @@ namespace Modeler
 			return go;
 		}
 
+		public static GameObject AddShape(Shape shape)
+		{
+			Mesh mesh = GeometryBuilder.CreateCube();
+			GameObject go = new GameObject();
+			go.AddComponent<MeshComponent>().source = mesh;
+			return Add(go);
+		}
+
 		public static void Delete(IEnumerable<GameObject> gameObjects)
 		{
 			foreach(GameObject go in gameObjects)
