@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Modeler
 {
-	public static class ModelerGUI
+	public static class GUIUtility
 	{
 		private static GUISkin _skin = null;
 
@@ -12,7 +12,16 @@ namespace Modeler
 			get
 			{
 				if(_skin == null)
+				{
 					_skin = (GUISkin) Resources.Load("Skin/Modeler", typeof(GUISkin));
+
+					// Crappy workaround for retina displays
+#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+					_skin.font = (Font) Resources.Load("Font/FiraCode-Retina", typeof(Font));
+					foreach(GUIStyle style in _skin.customStyles)
+						style.fontSize *= 2;
+#endif
+				}
 				return _skin;
 			}
 		}
@@ -31,6 +40,27 @@ namespace Modeler
 			onStyles.Add(name, active);
 
 			return active;
+		}
+
+		/**
+		 * Workaround for IMGUI scaling on retina display.
+		 */
+		public static float ScalePoint(float x)
+		{
+#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+			return x * 2f;
+#else
+			return x;
+#endif
+		}
+
+		public static Vector2 ScalePoint(Vector2 v)
+		{
+#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
+			return v * 2f;
+#else
+			return v;
+#endif
 		}
 	}
 }

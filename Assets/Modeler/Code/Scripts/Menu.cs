@@ -24,7 +24,7 @@ namespace Modeler
 
 		void OnGUI()
 		{
-			GUI.skin = ModelerGUI.skin;
+			GUI.skin = GUIUtility.skin;
 
 			if( Event.current.type == EventType.Repaint )
 				usedRects.Clear();
@@ -36,9 +36,6 @@ namespace Modeler
 
 				if(GUILayout.Button("New Cube"))
 				{
-					// GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-					// go.GetComponent<MeshRenderer>().sharedMaterial = (Material) Resources.Load("Material/Default", typeof(Material));
-					// SceneUtility.Add( go );
 					SceneUtility.AddShape(Shape.Cube);
 				}
 
@@ -151,7 +148,7 @@ namespace Modeler
 		{
 			EditMode em = SceneInput.instance.editMode;
 
-			GUIStyle gstyle = em == mode ? ModelerGUI.GetStyleOn(style) : GUI.skin.GetStyle(style);
+			GUIStyle gstyle = em == mode ? GUIUtility.GetStyleOn(style) : GUI.skin.GetStyle(style);
 
 			GUI.backgroundColor = em == mode ? onColor : Color.white;
 

@@ -6,16 +6,17 @@ namespace Modeler
 {
 	public class TransformDisplay : MonoBehaviour
 	{
-		private float width = 300f;
+		private float width { get { return GUIUtility.ScalePoint(300f); } }
+		private float pad { get { return GUIUtility.ScalePoint(4f); } }
 
 		void OnGUI()
 		{
-			GUI.skin = ModelerGUI.skin;
+			GUI.skin = GUIUtility.skin;
 
 			GameObject go = Selection.gameObjects.FirstOrDefault();
 
 			if(go != null)
-				GUI.Label( new Rect( Screen.width - width - 4, 30f, width, 300f),
+				GUI.Label( new Rect( Screen.width - width - pad, GUIUtility.ScalePoint(30f), width, width),
 					string.Format("translation  {0,5:f2}, {1,5:f2}, {2,5:f2}\nrotation     {3,5:f2}, {4,5:f2}, {5,5:f2}\nscale        {6,5:f2}, {7,5:f2}, {8,5:f2}",
 						go.transform.position.x,
 						go.transform.position.y,
@@ -26,7 +27,7 @@ namespace Modeler
 						go.transform.localScale.x,
 						go.transform.localScale.y,
 						go.transform.localScale.z
-					), 
+					),
 					"RightAlignLabel");
 		}
 	}
