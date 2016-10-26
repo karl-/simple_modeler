@@ -44,16 +44,14 @@ namespace Modeler
 		/**
 		 *	Pick a GameObject in the Scene.  Returns true if an object was selected.
 		 */
-		public static bool PickGameObject(Vector3 mousePosition)
+		public static bool PickGameObject(Vector2 mousePosition)
 		{
-			Ray ray = Camera.main.ScreenPointToRay(mousePosition);
-
 			if( !AppendModifier() )
 				Clear();
-			
+
 			GameObject hit = null;
 
-			if( Picker.PickGameObject(ray, out hit, null) )
+			if( Picker.PickGameObject(mousePosition, out hit, null) )
 			{
 				if( AppendModifier() )
 				{
@@ -67,7 +65,7 @@ namespace Modeler
 
 				return true;
 			}
-	
+
 			return false;
 		}
 	}

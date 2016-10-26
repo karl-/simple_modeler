@@ -20,5 +20,37 @@ namespace Modeler
 			else
 				return delta * scale * ( (lhs.y-rhs.y) > 0f ? 1f : -1f );
 		}
+
+		public static bool FaceRaycast(Ray localRay, Mesh mesh, out Face face)
+		{
+			face = null;
+			Vector3[] positions = mesh.positions;
+
+			for(int i = 0; i < mesh.faces.Length; i++)
+			{
+				int[] indices = mesh.faces[i].indices;
+
+				for(int n = 0; n < indices.Length; n += 3)
+				{
+					Vector3 a = positions[indices[n    ]];
+					Vector3 b = positions[indices[n + 1]];
+					Vector3 c = positions[indices[n + 2]];
+
+					Vector3 normal = Vector3.Cross(b-a, c-a);
+
+					// test if face is culled by back, potentially skipping costly ray-tri intersect test
+					if( Vector3.Dot(normal, localRay.direction) < 0f )
+						continue;
+
+					if( MathUtility.RayIntersectsTriangle(localRay, a, b, c) )
+					{
+						face = mesh.faces[i];
+						return true;
+					}
+				}
+			}
+
+			return false;
+		}
 	}
 }

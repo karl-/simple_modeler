@@ -26,7 +26,6 @@ namespace Modeler
 			}
 		}
 
-
 		Vector3 SnapAxis(Vector3 dir)
 		{
 			float x = Mathf.Abs(dir.x), y = Mathf.Abs(dir.y), z = Mathf.Abs(dir.z);
@@ -77,7 +76,8 @@ namespace Modeler
 
 		void ElementPicker()
 		{
-
+			Face face;
+			Debug.Log( Picker.PickFace(Input.mousePosition, out face) );
 		}
 
 		void TranslateSelection(Vector3 direction)
