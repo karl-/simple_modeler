@@ -13,7 +13,7 @@ namespace Modeler
 		{
 			GUI.skin = GUIUtility.skin;
 
-			GameObject go = Selection.gameObjects.FirstOrDefault();
+			GameObject go = Selection.gameObjects.FirstOrDefault().Key;
 
 			if(go != null)
 				GUI.Label( new Rect( Screen.width - width - pad, GUIUtility.ScalePoint(30f), width, width),

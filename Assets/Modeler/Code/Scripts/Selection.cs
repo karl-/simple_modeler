@@ -9,12 +9,13 @@ namespace Modeler
 	 */
 	public static class Selection
 	{
-		public static HashSet<GameObject> gameObjects = new HashSet<GameObject>();
+		public static Dictionary<GameObject, ElementSelection> gameObjects = new Dictionary<GameObject, ElementSelection>();
 
 		public static bool Add(GameObject go)
 		{
-			if( gameObjects.Add(go) )
+			if( !gameObjects.ContainsKey(go) )
 			{
+				gameObjects.Add(go, new ElementSelection());
 				go.AddComponent<Wireframe>();
 				return true;
 			}
@@ -25,13 +26,15 @@ namespace Modeler
 		public static void Remove(GameObject go)
 		{
 			go.TryRemoveComponent<Wireframe>();
-			gameObjects.Remove(go);
+
+			if(gameObjects.ContainsKey(go))
+				gameObjects.Remove(go);
 		}
 
 		public static void Clear()
 		{
-			foreach(GameObject go in gameObjects)
-				go.TryRemoveComponent<Wireframe>();
+			foreach(var kvp in gameObjects)
+				kvp.Key.TryRemoveComponent<Wireframe>();
 
 			gameObjects.Clear();
 		}
@@ -65,6 +68,20 @@ namespace Modeler
 
 				return true;
 			}
+
+			return false;
+		}
+
+		public static bool PickFace(Vector2 mousePosition)
+		{
+				// 			foreach(GameObject go in Selection.gameObjects)
+				// {
+				// 	Face face;
+
+				// 	if( Picker.PickFace(Input.mousePosition, out face) )
+				// 	{
+
+				// 	}
 
 			return false;
 		}

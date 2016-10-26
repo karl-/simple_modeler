@@ -76,8 +76,10 @@ namespace Modeler
 
 					InfoExpando expando;
 
-					foreach(GameObject go in Selection.gameObjects)
+					foreach(KeyValuePair<GameObject, ElementSelection> selected in Selection.gameObjects)
 					{
+						GameObject go = selected.Key;
+
 						if( !expandoDictionary.TryGetValue(go, out expando) )
 						{
 							expando = new InfoExpando();

@@ -51,8 +51,8 @@ namespace Modeler
 
 				if( editMode == EditMode.Object )
 					Selection.PickGameObject(Input.mousePosition);
-				else
-					ElementPicker();
+				else if( editMode == EditMode.Face )
+					Selection.PickFace(Input.mousePosition);
 			}
 
 			Transform camTrs = Camera.main.transform;
@@ -71,19 +71,13 @@ namespace Modeler
 				TranslateSelection( SnapAxis(-camTrs.up) * translationStep );
 
 			if( Input.GetKey(KeyCode.Backspace) || Input.GetKey(KeyCode.Delete) )
-				SceneUtility.Delete(Selection.gameObjects);
-		}
-
-		void ElementPicker()
-		{
-			Face face;
-			Debug.Log( Picker.PickFace(Input.mousePosition, out face) );
+				SceneUtility.Delete(Selection.gameObjects.Keys);
 		}
 
 		void TranslateSelection(Vector3 direction)
 		{
-			foreach(GameObject go in Selection.gameObjects)
-				go.transform.position += direction;
+			foreach(var kvp in Selection.gameObjects)
+				kvp.Key.transform.position += direction;
 		}
 
 	}
