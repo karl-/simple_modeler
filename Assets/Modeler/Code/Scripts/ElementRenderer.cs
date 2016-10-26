@@ -10,6 +10,8 @@ namespace Modeler
 	 */
 	public class ElementRenderer : MonoBehaviour
 	{
+		// If this were a more serious project it would make sense to
+		// pool UMesh resources.
 		private UMesh _mesh = null;
 
 		private static Material faceHighlightMaterial
@@ -28,6 +30,12 @@ namespace Modeler
 		public void SetSelectedEdges(Mesh mesh, IEnumerable<Edge> selection)
 		{
 			CreateEdgeMesh(mesh, selection, ref _mesh);
+		}
+
+		public void Clear()
+		{
+			if(_mesh != null)
+				Object.Destroy(_mesh);
 		}
 
 		void Update()

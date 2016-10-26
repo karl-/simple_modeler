@@ -17,6 +17,7 @@ namespace Modeler
 			public bool showPositions = false;
 			public bool showNormals = false;
 			public bool showUVs = false;
+			public bool showFaces = false;
 			public bool showTriangles = false;
 		}
 
@@ -104,31 +105,63 @@ namespace Modeler
 
 		private void DrawMeshData(GameObject go, InfoExpando expando)
 		{
-			MeshFilter mf = go.GetComponent<MeshFilter>();
+			MeshComponent mf = go.GetComponent<MeshComponent>();
 
-			if(mf == null || mf.sharedMesh == null)
+			if(mf == null || mf.source == null)
 			{
 				GUILayout.Label("null");
 				return;
 			}
 
-			if( GUILayout.Button("positions") )
+			Mesh m = mf.source;
+
+			if( m.positions != null && GUILayout.Button("positions") )
 				expando.showPositions = !expando.showPositions;
 
-			if(expando.showPositions)
-				DrawEnumerable(mf.sharedMesh.vertices, DrawVec3);
+			if( expando.showPositions )
+				DrawEnumerable(m.positions, DrawVec3);
 
-			if( GUILayout.Button("normals") )
+			if( m.normals != null && GUILayout.Button("normals") )
 				expando.showNormals = !expando.showNormals;
 
-			if(expando.showNormals)
-				DrawEnumerable(mf.sharedMesh.normals, DrawVec3);
+			if( expando.showNormals )
+				DrawEnumerable(m.normals, DrawVec3);
 
-			if( GUILayout.Button("uvs") )
+			if( m.uvs != null && GUILayout.Button("uvs") )
 				expando.showUVs = !expando.showUVs;
 
-			if(expando.showUVs)
-				DrawEnumerable(mf.sharedMesh.uv, DrawVec2);
+			if( expando.showUVs )
+				DrawEnumerable(m.uvs, DrawVec2);
+
+			if( m.faces != null && GUILayout.Button("faces") )
+				expando.showFaces = !expando.showFaces;
+
+			if( expando.showFaces )
+				DrawEnumerable(m.faces, DrawFace);
+		}
+
+		private string DrawFace(Face face)
+		{
+			System.Text.StringBuilder sb = new System.Text.StringBuilder();
+
+			int[] indices = face.indices;
+
+			for(int i = 0; i < indices.Length; i += 3)
+			{
+				// indent lines after first to account for index
+				if(i > 2)
+					sb.AppendLine(string.Format("{0,8}, {1,3}, {2,3}",
+						indices[i  ],
+						indices[i+1],
+						indices[i+2] ));
+				else
+					sb.AppendLine(string.Format("{0,3}, {1,3}, {2,3}",
+						indices[i  ],
+						indices[i+1],
+						indices[i+2] ));
+			}
+
+			return sb.ToString();
 		}
 
 		private string DrawVec2(Vector2 v)
