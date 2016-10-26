@@ -38,9 +38,10 @@ namespace Modeler
 				{
 					GameObject go = SceneUtility.AddShape(Shape.Cube);
 					MeshComponent mc = go.GetComponent<MeshComponent>();
-					Face face = mc.source.faces[0];
+					Face face = mc.source.faces[1];
+					var edges = face.GetBorderEdges();
 					ElementRenderer er = go.AddComponent<ElementRenderer>();
-					er.SetSelectedFaces(mc.source, new Face[] { face });
+					er.SetSelectedEdges(mc.source, edges);
 				}
 
 				GUILayout.FlexibleSpace();
