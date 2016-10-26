@@ -25,7 +25,7 @@ Shader "Custom/Wireframe"
 			AlphaTest Greater .25
 
 			CGPROGRAM
-		
+
 			#pragma vertex vert
 			#pragma fragment frag
 			#include "UnityCG.cginc"

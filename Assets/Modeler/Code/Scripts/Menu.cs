@@ -36,7 +36,11 @@ namespace Modeler
 
 				if(GUILayout.Button("New Cube"))
 				{
-					SceneUtility.AddShape(Shape.Cube);
+					GameObject go = SceneUtility.AddShape(Shape.Cube);
+					MeshComponent mc = go.GetComponent<MeshComponent>();
+					Face face = mc.source.faces[0];
+					ElementRenderer er = go.AddComponent<ElementRenderer>();
+					er.SetSelectedFaces(mc.source, new Face[] { face });
 				}
 
 				GUILayout.FlexibleSpace();
